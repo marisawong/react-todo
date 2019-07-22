@@ -6,27 +6,32 @@ import Header from './components/layout/header.js';
 import AddTodo from './components/AddTodo.js';
 import About from './components/pages/About.js';
 import uuid from 'uuid';
+import axios from 'axios'; 
 
 class App extends Component {
   state = {
-    todos: [
-      {
-        // id: 1,
-        id: uuid.v4(), 
-        title: 'Burp',
-        completed: true
-      },
-      {
-        id: uuid.v4(), 
-        title: 'Fart',
-        completed: false
-      },
-      {
-        id: uuid.v4(), 
-        title: 'Poop',
-        completed: false
-      }
-    ]
+    todos: []
+      // {
+      //   // id: 1,
+      //   id: uuid.v4(), 
+      //   title: 'Burp',
+      //   completed: true
+      // },
+      // {
+      //   id: uuid.v4(), 
+      //   title: 'Fart',
+      //   completed: false
+      // },
+      // {
+      //   id: uuid.v4(), 
+      //   title: 'Poop',
+      //   completed: false
+      // }
+  }
+
+  componentDidMount() {
+    axios.get('https://jsonplaceholder.typicode.com/todos?_limit=10')
+      .then(res => this.setState( {todos: res.data})) 
   }
 
   // Toggles complete 
@@ -42,20 +47,33 @@ class App extends Component {
   // Delete todo
   deleteTodo = (id) => {
     // Spread operator ... to copy what is in the this.state.todos list
-    this.setState( { todos: [...this.state.todos.filter( todo => todo.id !== id)]})
+    // this.setState( { todos: [...this.state.todos.filter( todo => todo.id !== id)]})
     // Need to add persistence because React is just a UI/frontend framework
     // On reload, will have all the original 3 items in the todo list
+    axios.delete('https://jsonplaceholder.typicode.com/todos/${id}')
+      .then(res => this.setState({
+        todos: [...this.state.todos.filter( todo => todo.id !== id)]
+      }))
   }
 
   // Add todo
   addTodo = (title) => {
-    const newTodo = {
-      id: uuid.v4(),
+    // const newTodo = {
+      // id: uuid.v4(),
       // title: title, Can just put title because same name (es6) 
+      // title, 
+      // complete: false
+    // };
+    // this.setState( {todos: [...this.state.todos, newTodo]});
+    // console.log(title);
+    // Making a post request instead 
+    axios.post('https://jsonplaceholder.typicode.com/todos', { 
       title, 
-      complete: false
-    };
-    this.setState( {todos: [...this.state.todos, newTodo]});
+      completed: false
+    })
+      .then( res => this.setState({ 
+        todos: [...this.state.todos, res.data]
+      }))
   }
 
   render() {
